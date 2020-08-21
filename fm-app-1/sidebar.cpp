@@ -19,5 +19,15 @@ SideBar::SideBar(QWidget *parent) : QTreeView(parent)
             Q_EMIT goToUriRequest(uri);
     });
 
+    connect(this, &SideBar::expanded, this, [=](const QModelIndex &index){
+        auto item = proxyModel->itemFromIndex(index);
+        item->findChildrenAsync();
+    });
+
+    connect(this, &SideBar::collapsed, this, [=](const QModelIndex &index){
+        auto item = proxyModel->itemFromIndex(index);
+        item->clearChildren();
+    });
+
     expandAll();
 }
