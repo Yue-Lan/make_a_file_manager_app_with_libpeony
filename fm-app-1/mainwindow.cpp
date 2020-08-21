@@ -45,12 +45,13 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
     connect(m_container, &Peony::DirectoryViewContainer::viewTypeChanged, this, [=](){
-        // FIXME: update tool bar view type
         m_toolBar->updateViewType(m_container->getView()->viewId());
     });
     connect(m_container, &Peony::DirectoryViewContainer::updateWindowLocationRequest, this, [=](const QString &uri, bool addToHistory){
         goToUri(uri, addToHistory);
     });
+
+    connect(m_container, &Peony::DirectoryViewContainer::selectionChanged, this, &MainWindow::updateStatusBar);
 
     // navigation bar
     m_navigationBar = new NavigationBar(this);
@@ -136,5 +137,14 @@ void MainWindow::updateWindowState()
     m_navigationBar->setCanGoBack(m_container->canGoBack());
     m_navigationBar->setCanGoForward(m_container->canGoForward());
     m_navigationBar->setCanCdUp(m_container->canCdUp());
+
+    updateStatusBar();
+}
+
+void MainWindow::updateStatusBar()
+{
+    ui->statusbar->clearMessage();
+    auto selections = m_container->getCurrentSelections();
+    ui->statusbar->showMessage(selections.isEmpty()? m_container->getCurrentUri(): QString("%1 selected").arg(selections.count()));
 }
 

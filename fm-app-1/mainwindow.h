@@ -37,6 +37,8 @@ public Q_SLOTS:
 
     void updateWindowState();
 
+    void updateStatusBar();
+
 private:
     Ui::MainWindow *ui;
 
