@@ -10,7 +10,7 @@ public:
     explicit PathBar(QWidget *parent = nullptr);
 
 Q_SIGNALS:
-    void goToUriRequest(const QString &uri);
+    void goToUriRequest(const QString &uri, bool addToHistory = true);
 
 public Q_SLOTS:
     void updatePath(const QString &uri);

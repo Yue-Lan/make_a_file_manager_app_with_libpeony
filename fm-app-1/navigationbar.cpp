@@ -6,6 +6,10 @@ NavigationBar::NavigationBar(QWidget *parent) : QToolBar(parent)
     m_goForward = addAction("Go Forward", this, &NavigationBar::goForwardRequest);
     m_cdUp = addAction("Cd Up", this, &NavigationBar::cdUpRequest);
     m_refresh = addAction("Refresh", this, &NavigationBar::refreshRequest);
+
+    setCanGoBack(false);
+    setCanGoForward(false);
+    setCanCdUp(false);
 }
 
 void NavigationBar::setCanGoBack(bool can)

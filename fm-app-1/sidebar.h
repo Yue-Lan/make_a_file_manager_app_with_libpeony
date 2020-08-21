@@ -10,7 +10,7 @@ public:
     explicit SideBar(QWidget *parent = nullptr);
 
 Q_SIGNALS:
-    void goToUriRequest(const QString &uri);
+    void goToUriRequest(const QString &uri, bool addToHistory = true);
 
 };
 

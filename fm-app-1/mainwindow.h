@@ -27,7 +27,7 @@ public:
     QString getCurrentUri();
 
 public Q_SLOTS:
-    void goToUri(const QString &uri);
+    void goToUri(const QString &uri, bool addToHistory = true);
     void goBack();
     void goForward();
     void cdUp();

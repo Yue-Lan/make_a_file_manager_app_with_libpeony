@@ -11,6 +11,13 @@
 #include <peony-qt/controls/directory-view/directory-view-container.h>
 #include <peony-qt/controls/menu/directory-view-menu/directory-view-menu.h>
 
+#include <peony-qt/controls/directory-view/directory-view-widget.h>
+
+#include <QDesktopServices>
+#include <QUrl>
+
+#include <PeonyFileInfo>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -20,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     // view
     m_container = new Peony::DirectoryViewContainer(this);
     m_container->switchViewType("Icon View");
-    m_container->goToUri("file:///", true);
+    m_container->goToUri("file:///", false);
     setCentralWidget(m_container);
     m_container->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -29,11 +36,20 @@ MainWindow::MainWindow(QWidget *parent)
         Peony::DirectoryViewMenu menu(m_container->getView());
         menu.exec(QCursor::pos());
     });
-    connect(m_container, &Peony::DirectoryViewContainer::viewDoubleClicked, this, [=](){
-        // FIXME: open a file or directory
+    connect(m_container, &Peony::DirectoryViewContainer::viewDoubleClicked, this, [=](const QString &uri){
+        auto info = Peony::FileInfo::fromUri(uri);
+        if (info->isDir() || info->isVolume()) {
+            goToUri(uri);
+        } else {
+            QDesktopServices::openUrl(QUrl(uri));
+        }
     });
     connect(m_container, &Peony::DirectoryViewContainer::viewTypeChanged, this, [=](){
         // FIXME: update tool bar view type
+        m_toolBar->updateViewType(m_container->getView()->viewId());
+    });
+    connect(m_container, &Peony::DirectoryViewContainer::updateWindowLocationRequest, this, [=](const QString &uri, bool addToHistory){
+        goToUri(uri, addToHistory);
     });
 
     // navigation bar
@@ -82,9 +98,9 @@ QString MainWindow::getCurrentUri()
     return m_container->getCurrentUri();
 }
 
-void MainWindow::goToUri(const QString &uri)
+void MainWindow::goToUri(const QString &uri, bool addToHistory)
 {
-    m_container->goToUri(uri, true);
+    m_container->goToUri(uri, addToHistory);
 }
 
 void MainWindow::goBack()
@@ -104,7 +120,7 @@ void MainWindow::cdUp()
 
 void MainWindow::refresh()
 {
-
+    m_container->refresh();
 }
 
 void MainWindow::switchView(const QString &viewId)
@@ -116,5 +132,9 @@ void MainWindow::updateWindowState()
 {
     auto uri = getCurrentUri();
     m_pathBar->updatePath(uri);
+
+    m_navigationBar->setCanGoBack(m_container->canGoBack());
+    m_navigationBar->setCanGoForward(m_container->canGoForward());
+    m_navigationBar->setCanCdUp(m_container->canCdUp());
 }
 
